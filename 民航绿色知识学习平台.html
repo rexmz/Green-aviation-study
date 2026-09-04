@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>民航绿色知识学习平台</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f5f5f7; color: #1d1d1f; line-height: 1.5; }
+  .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+  .header { display: flex; align-items: center; gap: 14px; padding: 20px 0 16px; border-bottom: 1px solid #e5e5e7; margin-bottom: 20px; }
+  .header-icon { width: 44px; height: 44px; border-radius: 10px; background: #1d1d1f; display: flex; align-items: center; justify-content: center; }
+  .header-icon svg { width: 24px; height: 24px; color: #fff; }
+  .header-title { font-size: 22px; font-weight: 600; }
+  .header-sub { font-size: 14px; color: #86868b; margin-top: 2px; }
+
+  .nav { display: flex; gap: 6px; padding: 5px; background: #f0f0f2; border-radius: 12px; margin-bottom: 24px; overflow-x: auto; }
+  .nav-btn { flex: 1; min-width: 80px; padding: 10px 14px; border: none; background: transparent; border-radius: 8px; font-size: 14px; font-weight: 500; color: #86868b; cursor: pointer; transition: all .2s; text-align: center; white-space: nowrap; }
+  .nav-btn:hover { color: #1d1d1f; }
+  .nav-btn.active { background: #fff; color: #1d1d1f; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .stat { background: #fff; border: 1px solid #e5e5e7; border-radius: 12px; padding: 18px 8px; text-align: center; }
+  .stat-val { font-size: 32px; font-weight: 600; color: #1d1d1f; }
+  .stat-label { font-size: 12px; color: #86868b; margin-top: 4px; }
+
+  .section-title { font-size: 16px; font-weight: 600; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ''; width: 4px; height: 18px; background: #1d1d1f; border-radius: 2px; }
+
+  .card { background: #fff; border: 1px solid #e5e5e7; border-radius: 14px; padding: 18px; margin-bottom: 12px; cursor: pointer; transition: all .2s; }
+  .card:hover { border-color: #c7c7cc; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .card.expanded { border-color: #0071e3; box-shadow: 0 2px 12px rgba(0,113,227,0.08); }
+  .card-hd { display: flex; align-items: flex-start; gap: 14px; }
+  .card-num { width: 32px; height: 32px; border-radius: 10px; background: #f5f5f7; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+  .card-body { flex: 1; }
+  .card-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .card-desc { font-size: 13px; color: #86868b; line-height: 1.5; }
+  .card-meta { display: flex; gap: 10px; margin-top: 10px; font-size: 12px; color: #86868b; flex-wrap: wrap; }
+  .tag { display: inline-flex; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 500; }
+  .tag-policy { background: #e8f4fd; color: #0071e3; }
+  .tag-tech { background: #e8f5e9; color: #2e7d32; }
+  .tag-practice { background: #f3e5f5; color: #7b1fa2; }
+  .tag-core { background: #1d1d1f; color: #fff; }
+  .tag-new { background: #fff3e0; color: #e65100; }
+  .card-arrow { margin-left: auto; color: #c7c7cc; transition: transform .2s; flex-shrink: 0; margin-top: 4px; }
+  .card.expanded .card-arrow { transform: rotate(180deg); }
+  .card-expand { margin-top: 14px; padding-top: 14px; border-top: 1px solid #e5e5e7; display: none; }
+  .card.expanded .card-expand { display: block; }
+
+  .lesson { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #f5f5f7; border-radius: 8px; font-size: 13px; color: #555; margin-bottom: 6px; }
+  .lesson-dot { width: 6px; height: 6px; border-radius: 50%; background: #c7c7cc; flex-shrink: 0; }
+  .lesson-status { margin-left: auto; font-size: 11px; padding: 2px 8px; border-radius: 6px; background: #f0f0f2; color: #86868b; }
+
+  .actions { display: flex; gap: 10px; margin-top: 14px; }
+  .btn { flex: 1; padding: 10px; border: 1px solid #e5e5e7; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 500; color: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .2s; }
+  .btn:hover { background: #f5f5f7; border-color: #c7c7cc; color: #1d1d1f; }
+  .btn.active { background: #1d1d1f; border-color: #1d1d1f; color: #fff; }
+
+  .case-box { margin-top: 12px; padding: 14px; background: #f5f5f7; border-radius: 10px; border-left: 3px solid #0071e3; display: none; }
+  .case-box.show { display: block; }
+  .case-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; color: #0071e3; }
+  .case-text { font-size: 12px; color: #555; line-height: 1.8; }
+  .case-text strong { color: #1d1d1f; font-weight: 600; }
+
+  .quiz-box { margin-top: 12px; display: none; }
+  .quiz-box.show { display: block; }
+  .q-text { font-size: 13px; font-weight: 600; padding: 10px 12px; background: #f5f5f7; border-radius: 8px; margin-bottom: 8px; }
+  .q-opt { padding: 10px 12px; border: 1px solid #e5e5e7; border-radius: 8px; font-size: 12px; color: #555; cursor: pointer; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; transition: all .2s; }
+  .q-opt:hover { border-color: #c7c7cc; background: #fafafa; }
+  .q-opt.correct { border-color: #34c759; background: #f0fff4; color: #2e7d32; }
+  .q-opt.wrong { border-color: #ff3b30; background: #fff5f5; color: #c62828; }
+  .q-letter { width: 22px; height: 22px; border-radius: 50%; background: #f0f0f2; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; }
+  .q-fb { margin-top: 6px; padding: 8px 12px; border-radius: 6px; font-size: 12px; display: none; }
+  .q-fb.show { display: block; }
+  .q-fb.ok { background: #f0fff4; color: #2e7d32; }
+  .q-fb.ng { background: #fff5f5; color: #c62828; }
+  .q-score { margin-top: 10px; font-size: 12px; color: #86868b; text-align: right; font-weight: 500; }
+
+  .res-panel { margin-top: 20px; border: 1px solid #e5e5e7; border-radius: 14px; overflow: hidden; background: #fff; }
+  .res-hd { padding: 16px; background: #f5f5f7; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+  .res-hd-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .res-count { font-size: 11px; padding: 3px 8px; border-radius: 6px; background: #e5e5e7; color: #86868b; }
+  .res-body { padding: 14px 16px; display: none; }
+  .res-body.on { display: block; }
+  .res-cat { font-size: 12px; font-weight: 600; margin: 14px 0 8px; color: #1d1d1f; }
+  .res-cat:first-child { margin-top: 0; }
+  .res-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #f5f5f7; border-radius: 8px; font-size: 13px; color: #555; margin-bottom: 6px; cursor: pointer; transition: all .2s; }
+  .res-item:hover { background: #e5e5e7; }
+  .res-item svg { width: 14px; height: 14px; color: #86868b; flex-shrink: 0; }
+  .res-name { flex: 1; }
+  .res-type { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #e5e5e7; color: #86868b; }
+
+  .case-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .case-card { padding: 14px; background: #fff; border: 1px solid #e5e5e7; border-radius: 12px; border-left: 3px solid #0071e3; transition: all .2s; }
+  .case-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .case-card-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .case-card-text { font-size: 12px; color: #86868b; line-height: 1.6; }
+  .case-card-tag { display: inline-block; margin-top: 8px; font-size: 11px; padding: 2px 8px; border-radius: 5px; background: #f0f0f2; color: #86868b; }
+
+  .quiz-card { padding: 16px; background: #fff; border: 1px solid #e5e5e7; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+  .quiz-card-info { flex: 1; }
+  .quiz-card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .quiz-card-meta { font-size: 12px; color: #86868b; }
+  .quiz-card-btn { padding: 8px 16px; border: 1px solid #1d1d1f; border-radius: 8px; background: #1d1d1f; color: #fff; font-size: 12px; font-weight: 500; cursor: pointer; transition: all .2s; }
+  .quiz-card-btn:hover { background: #333; }
+
+  .hidden { display: none !important; }
+  .progress-bar { width: 100%; height: 4px; background: #f0f0f2; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #1d1d1f; border-radius: 2px; width: 0%; transition: width .3s; }
+
+  @media (max-width: 640px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .case-grid { grid-template-columns: 1fr; }
+    .quiz-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8"/><path d="m22 12-6-6"/><path d="m2 12 6-6"/></svg>
+    </div>
+    <div>
+      <div class="header-title">民航绿色知识学习平台</div>
+      <div class="header-sub">民航行业干部绿色低碳发展专题培训</div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="showPage('home')">首页</button>
+    <button class="nav-btn" onclick="showPage('course')">课程学习</button>
+    <button class="nav-btn" onclick="showPage('case')">案例库</button>
+    <button class="nav-btn" onclick="showPage('quiz')">在线测验</button>
+    <button class="nav-btn" onclick="showPage('resource')">资源中心</button>
+  </div>
+
+  <div id="page-home">
+    <div class="stats">
+      <div class="stat"><div class="stat-val">9</div><div class="stat-label">核心模块</div></div>
+      <div class="stat"><div class="stat-val">36</div><div class="stat-label">课时总量</div></div>
+      <div class="stat"><div class="stat-val">18</div><div class="stat-label">配套案例</div></div>
+      <div class="stat"><div class="stat-val">20</div><div class="stat-label">政策文件</div></div>
+    </div>
+    <div class="section-title">学习进度概览</div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-hd">
+        <div class="card-num">基</div>
+        <div class="card-body">
+          <div class="card-title">基础篇 · 认知体系</div>
+          <div class="card-desc">5个模块 · 20课时 · 10个案例 · 已完成 0/5</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="card-expand">
+        <div class="lesson"><div class="lesson-dot"></div>M1 气候变化与全球碳治理格局<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>M2 气候变化对民航业的影响<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>M3 民航减排措施与技术路径<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>M4 民航碳市场与碳交易机制<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>M5 政策法规体系解读<span class="lesson-status">未开始</span></div>
+      </div>
+    </div>
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-hd">
+        <div class="card-num">实</div>
+        <div class="card-body">
+          <div class="card-title">实践篇 · 落地操作</div>
+          <div class="card-desc">4个模块 · 16课时 · 8个案例 · 已完成 0/4</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+        </div>
+        <div class="card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="card-expand">
+        <div class="lesson"><div class="lesson-dot"></div>M6 企业绿色减排平台搭建<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>M7 SAF全链条运用<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>M8 民航碳市场参与与衔接<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>M9 ESG体系与双控考核<span class="lesson-status">未开始</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-course" class="hidden">
+    <div class="section-title">基础篇 · 认知体系（5模块）</div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-hd">
+        <div class="card-num">01</div>
+        <div class="card-body">
+          <div class="card-title">气候变化与全球碳治理格局</div>
+          <div class="card-desc">温室效应、IPCC报告、双碳战略、全球碳市场</div>
+          <div class="card-meta">
+            <span>4课时</span><span>初级</span>
+            <span class="tag tag-policy">政策</span><span class="tag tag-core">核心</span>
+          </div>
+        </div>
+        <div class="card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="card-expand">
+        <div class="lesson"><div class="lesson-dot"></div>温室效应与全球变暖科学机理<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>IPCC第六次评估报告解读<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>中国双碳目标政策演进<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>全球碳市场治理格局<span class="lesson-status">未开始</span></div>
+        <div class="actions">
+          <button class="btn" onclick="showSub(event,'case-m1')">案例研讨</button>
+          <button class="btn" onclick="showSub(event,'quiz-m1')">课后测验</button>
+        </div>
+        <div class="case-box" id="case-m1">
+          <div class="case-title">案例研讨</div>
+          <div class="case-text">
+            <strong>案例A：南航"双碳"战略路径规划（2021-2030）</strong><br>
+            南航发布《碳达峰行动方案》，从机队优化（A350/B787引进）、航路PBN应用、地面APU替代三维度构建减排路径，面临SAF采购成本与碳配额管理双重挑战。<br><br>
+            <strong>案例B：东航参与全国碳市场模拟演练</strong><br>
+            还原MRV体系建设、排放数据报送、配额试算的操作流程与制度障碍分析。
+          </div>
+        </div>
+        <div class="quiz-box" id="quiz-m1">
+          <div class="q-text">1. 中国双碳目标时间节点是？</div>
+          <div class="q-opt" onclick="ans(this,'m1',1,'A','B')"><div class="q-letter">A</div>2025达峰/2050中和</div>
+          <div class="q-opt" onclick="ans(this,'m1',1,'B','B')"><div class="q-letter">B</div>2030达峰/2060中和</div>
+          <div class="q-opt" onclick="ans(this,'m1',1,'C','B')"><div class="q-letter">C</div>2035达峰/2060中和</div>
+          <div class="q-fb" id="fb-m1-1"></div>
+          <div class="q-text" style="margin-top:10px;">2. 全球首个ETS诞生于？</div>
+          <div class="q-opt" onclick="ans(this,'m1',2,'A','C')"><div class="q-letter">A</div>美国加州</div>
+          <div class="q-opt" onclick="ans(this,'m1',2,'B','C')"><div class="q-letter">B</div>中国深圳</div>
+          <div class="q-opt" onclick="ans(this,'m1',2,'C','C')"><div class="q-letter">C</div>欧盟</div>
+          <div class="q-fb" id="fb-m1-2"></div>
+          <div class="q-score" id="sc-m1">得分：0/2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-hd">
+        <div class="card-num">02</div>
+        <div class="card-body">
+          <div class="card-title">气候变化对民航业的影响</div>
+          <div class="card-desc">运营干扰、碳成本传导、基础设施韧性、飞行安全</div>
+          <div class="card-meta">
+            <span>4课时</span><span>初级</span>
+            <span class="tag tag-new">热点</span>
+          </div>
+        </div>
+        <div class="card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="card-expand">
+        <div class="lesson"><div class="lesson-dot"></div>极端天气对航班运营干扰<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>碳定价对运输成本结构重塑<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>机场气候韧性风险评估<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>晴空湍流对飞行安全威胁<span class="lesson-status">未开始</span></div>
+        <div class="actions">
+          <button class="btn" onclick="showSub(event,'case-m2')">案例研讨</button>
+          <button class="btn" onclick="showSub(event,'quiz-m2')">课后测验</button>
+        </div>
+        <div class="case-box" id="case-m2">
+          <div class="case-title">案例研讨</div>
+          <div class="case-text">
+            <strong>案例A：国航应对EU ETS碳成本传导（2012-2024）</strong><br>
+            从抵制到合规，分析碳成本对票价、航线网络的传导及2024年ReFuelEU新合规压力。<br><br>
+            <strong>案例B：深圳机场台风"山竹"后韧性改造</strong><br>
+            排水升级、抗风设计、应急电源冗余的气候适应性投资经济性评估。
+          </div>
+        </div>
+        <div class="quiz-box" id="quiz-m2">
+          <div class="q-text">1. 欧盟航空业纳入ETS起始年份？</div>
+          <div class="q-opt" onclick="ans(this,'m2',1,'A','B')"><div class="q-letter">A</div>2005</div>
+          <div class="q-opt" onclick="ans(this,'m2',1,'B','B')"><div class="q-letter">B</div>2012</div>
+          <div class="q-opt" onclick="ans(this,'m2',1,'C','B')"><div class="q-letter">C</div>2020</div>
+          <div class="q-fb" id="fb-m2-1"></div>
+          <div class="q-text" style="margin-top:10px;">2. 不属于气候变化对民航安全直接影响的是？</div>
+          <div class="q-opt" onclick="ans(this,'m2',2,'A','D')"><div class="q-letter">A</div>CAT频率增加</div>
+          <div class="q-opt" onclick="ans(this,'m2',2,'B','D')"><div class="q-letter">B</div>高温起飞性能下降</div>
+          <div class="q-opt" onclick="ans(this,'m2',2,'C','D')"><div class="q-letter">C</div>强风影响进近</div>
+          <div class="q-opt" onclick="ans(this,'m2',2,'D','D')"><div class="q-letter">D</div>机票价格上涨</div>
+          <div class="q-fb" id="fb-m2-2"></div>
+          <div class="q-score" id="sc-m2">得分：0/2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-hd">
+        <div class="card-num">03</div>
+        <div class="card-body">
+          <div class="card-title">民航减排措施与技术路径</div>
+          <div class="card-desc">机队更新、运营优化、地面能源替代、碳抵消</div>
+          <div class="card-meta">
+            <span>4课时</span><span>中级</span>
+            <span class="tag tag-tech">技术</span>
+          </div>
+        </div>
+        <div class="card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="card-expand">
+        <div class="lesson"><div class="lesson-dot"></div>新一代节能机型与机队优化<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>CDO/CCO与航路优化<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>地面APU替代与清洁能源<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>碳抵消与碳汇合规管理<span class="lesson-status">未开始</span></div>
+        <div class="actions">
+          <button class="btn" onclick="showSub(event,'case-m3')">案例研讨</button>
+          <button class="btn" onclick="showSub(event,'quiz-m3')">课后测验</button>
+        </div>
+        <div class="case-box" id="case-m3">
+          <div class="case-title">案例研讨</div>
+          <div class="case-text">
+            <strong>案例A：海航机队年轻化与燃油效率提升</strong><br>
+            6年内机龄从8.2年降至5.6年，吨公里油耗从0.285kg降至0.241kg，资本支出与燃油节约财务平衡。<br><br>
+            <strong>案例B：首都机场APU替代全覆盖</strong><br>
+            单台设备年节约航油成本约120万元，投资回报测算与地服流程改造协同。
+          </div>
+        </div>
+        <div class="quiz-box" id="quiz-m3">
+          <div class="q-text">1. 属于航路运营优化减排的是？</div>
+          <div class="q-opt" onclick="ans(this,'m3',1,'A','C')"><div class="q-letter">A</div>引进A350</div>
+          <div class="q-opt" onclick="ans(this,'m3',1,'B','C')"><div class="q-letter">B</div>机场光伏</div>
+          <div class="q-opt" onclick="ans(this,'m3',1,'C','C')"><div class="q-letter">C</div>连续下降进近</div>
+          <div class="q-fb" id="fb-m3-1"></div>
+          <div class="q-text" style="margin-top:10px;">2. APU替代设施替代的是？</div>
+          <div class="q-opt" onclick="ans(this,'m3',2,'A','A')"><div class="q-letter">A</div>辅助动力装置燃油</div>
+          <div class="q-opt" onclick="ans(this,'m3',2,'B','A')"><div class="q-letter">B</div>主发动机燃油</div>
+          <div class="q-opt" onclick="ans(this,'m3',2,'C','A')"><div class="q-letter">C</div>地服车辆燃油</div>
+          <div class="q-fb" id="fb-m3-2"></div>
+          <div class="q-score" id="sc-m3">得分：0/2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-hd">
+        <div class="card-num">04</div>
+        <div class="card-body">
+          <div class="card-title">民航碳市场与碳交易机制</div>
+          <div class="card-desc">碳市场原理、CORSIA、全国碳市场、民航衔接路径</div>
+          <div class="card-meta">
+            <span>4课时</span><span>中级</span>
+            <span class="tag tag-policy">政策</span><span class="tag tag-core">核心</span>
+          </div>
+        </div>
+        <div class="card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="card-expand">
+        <div class="lesson"><div class="lesson-dot"></div>总量控制与交易原理<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>ICAO CORSIA机制设计<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>全国碳市场建设进展<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>民航业加入碳市场路径<span class="lesson-status">未开始</span></div>
+        <div class="actions">
+          <button class="btn" onclick="showSub(event,'case-m4')">案例研讨</button>
+          <button class="btn" onclick="showSub(event,'quiz-m4')">课后测验</button>
+        </div>
+        <div class="case-box" id="case-m4">
+          <div class="case-title">案例研讨</div>
+          <div class="case-text">
+            <strong>案例A：国泰航空CORSIA合规与碳信用采购</strong><br>
+            采购CDM/VCS碳信用，成本约占运营成本0.3%，CORSIA与EU ETS双重合规管理协同。<br><br>
+            <strong>案例B：电力行业对民航的启示</strong><br>
+            华能集团MRV体系、配额盈亏管理、CCER使用经验推演民航纳入后的管理架构。
+          </div>
+        </div>
+        <div class="quiz-box" id="quiz-m4">
+          <div class="q-text">1. CORSIA全称是？</div>
+          <div class="q-opt" onclick="ans(this,'m4',1,'A','B')"><div class="q-letter">A</div>Carbon Offsetting Scheme for Aviation</div>
+          <div class="q-opt" onclick="ans(this,'m4',1,'B','B')"><div class="q-letter">B</div>Carbon Offsetting and Reduction Scheme for International Aviation</div>
+          <div class="q-opt" onclick="ans(this,'m4',1,'C','B')"><div class="q-letter">C</div>Carbon Optimization Scheme for Airlines</div>
+          <div class="q-fb" id="fb-m4-1"></div>
+          <div class="q-text" style="margin-top:10px;">2. 全国碳市场未覆盖的行业是？</div>
+          <div class="q-opt" onclick="ans(this,'m4',2,'A','D')"><div class="q-letter">A</div>发电</div>
+          <div class="q-opt" onclick="ans(this,'m4',2,'B','D')"><div class="q-letter">B</div>钢铁</div>
+          <div class="q-opt" onclick="ans(this,'m4',2,'C','D')"><div class="q-letter">C</div>水泥</div>
+          <div class="q-opt" onclick="ans(this,'m4',2,'D','D')"><div class="q-letter">D</div>航空运输</div>
+          <div class="q-fb" id="fb-m4-2"></div>
+          <div class="q-score" id="sc-m4">得分：0/2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-hd">
+        <div class="card-num">05</div>
+        <div class="card-body">
+          <div class="card-title">政策法规体系解读</div>
+          <div class="card-desc">EU ETS、ReFuelEU、民航绿色发展政策、双控考核</div>
+          <div class="card-meta">
+            <span>4课时</span><span>中级</span>
+            <span class="tag tag-policy">政策</span>
+          </div>
+        </div>
+        <div class="card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="card-expand">
+        <div class="lesson"><div class="lesson-dot"></div>欧盟ETS与ReFuelEU解析<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>《民航绿色发展实施意见》要点<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>巴黎协定航空减排责任分担<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>民航碳排放双控考核评价制度<span class="lesson-status">未开始</span></div>
+        <div class="actions">
+          <button class="btn" onclick="showSub(event,'case-m5')">案例研讨</button>
+          <button class="btn" onclick="showSub(event,'quiz-m5')">课后测验</button>
+        </div>
+        <div class="case-box" id="case-m5">
+          <div class="case-title">案例研讨</div>
+          <div class="case-text">
+            <strong>案例A：春秋航空低成本绿色合规策略</strong><br>
+            单一机型战略降低燃油成本，利用EU ETS免费配额覆盖碳成本，获取绿色金融低息贷款。<br><br>
+            <strong>案例B：三大航双控指标分解落实</strong><br>
+            吨公里油耗下降率、APU替代率指标的企业分解与考核迎检工作流程。
+          </div>
+        </div>
+        <div class="quiz-box" id="quiz-m5">
+          <div class="q-text">1. ReFuelEU要求2030年SAF掺混比例至少？</div>
+          <div class="q-opt" onclick="ans(this,'m5',1,'A','B')"><div class="q-letter">A</div>2%</div>
+          <div class="q-opt" onclick="ans(this,'m5',1,'B','B')"><div class="q-letter">B</div>6%</div>
+          <div class="q-opt" onclick="ans(this,'m5',1,'C','B')"><div class="q-letter">C</div>20%</div>
+          <div class="q-fb" id="fb-m5-1"></div>
+          <div class="q-text" style="margin-top:10px;">2. 民航碳排放双控指？</div>
+          <div class="q-opt" onclick="ans(this,'m5',2,'A','A')"><div class="q-letter">A</div>强度与总量</div>
+          <div class="q-opt" onclick="ans(this,'m5',2,'B','A')"><div class="q-letter">B</div>碳排放与能耗</div>
+          <div class="q-opt" onclick="ans(this,'m5',2,'C','A')"><div class="q-letter">C</div>直接与间接排放</div>
+          <div class="q-fb" id="fb-m5-2"></div>
+          <div class="q-score" id="sc-m5">得分：0/2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title" style="margin-top:24px;">实践篇 · 落地操作（4模块）</div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-hd">
+        <div class="card-num">06</div>
+        <div class="card-body">
+          <div class="card-title">企业绿色减排平台搭建</div>
+          <div class="card-desc">MRV体系、数据采集、SBTi目标、数字化平台</div>
+          <div class="card-meta">
+            <span>4课时</span><span>高级</span>
+            <span class="tag tag-practice">实操</span>
+          </div>
+        </div>
+        <div class="card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="card-expand">
+        <div class="lesson"><div class="lesson-dot"></div>碳排放核算边界与MRV设计<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>运行数据采集与排放因子库<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>SBTi目标设定与KPI分解<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>数字化管理平台选型实施<span class="lesson-status">未开始</span></div>
+        <div class="actions">
+          <button class="btn" onclick="showSub(event,'case-m6')">案例研讨</button>
+          <button class="btn" onclick="showSub(event,'quiz-m6')">课后测验</button>
+        </div>
+        <div class="case-box" id="case-m6">
+          <div class="case-title">案例研讨</div>
+          <div class="case-text">
+            <strong>案例A：东航碳排放管理平台建设</strong><br>
+            集成QAR/ACARS、燃油、能耗数据，数据中台+核算引擎+可视化大屏架构，FOC系统对接方案。<br><br>
+            <strong>案例B：厦门航空SBTi目标设定与KPI分解</strong><br>
+            中国首家通过SBTi审验航司，1.5°C路径下2030年减排42%，分子公司KPI设计与考核追踪。
+          </div>
+        </div>
+        <div class="quiz-box" id="quiz-m6">
+          <div class="q-text">1. MRV中"V"代表？</div>
+          <div class="q-opt" onclick="ans(this,'m6',1,'A','C')"><div class="q-letter">A</div>Validation</div>
+          <div class="q-opt" onclick="ans(this,'m6',1,'B','C')"><div class="q-letter">B</div>Verification（核实）</div>
+          <div class="q-opt" onclick="ans(this,'m6',1,'C','C')"><div class="q-letter">C</div>Verification（核查）</div>
+          <div class="q-fb" id="fb-m6-1"></div>
+          <div class="q-text" style="margin-top:10px;">2. SBTi要求与哪个温控目标对齐？</div>
+          <div class="q-opt" onclick="ans(this,'m6',2,'A','B')"><div class="q-letter">A</div>2°C</div>
+          <div class="q-opt" onclick="ans(this,'m6',2,'B','B')"><div class="q-letter">B</div>1.5°C</div>
+          <div class="q-opt" onclick="ans(this,'m6',2,'C','B')"><div class="q-letter">C</div>3°C</div>
+          <div class="q-fb" id="fb-m6-2"></div>
+          <div class="q-score" id="sc-m6">得分：0/2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-hd">
+        <div class="card-num">07</div>
+        <div class="card-body">
+          <div class="card-title">可持续航空燃料（SAF）全链条运用</div>
+          <div class="card-desc">技术路线、国际进出口、定价体系、认证标准</div>
+          <div class="card-meta">
+            <span>4课时</span><span>高级</span>
+            <span class="tag tag-new">热点</span><span class="tag tag-core">核心</span>
+          </div>
+        </div>
+        <div class="card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="card-expand">
+        <div class="lesson"><div class="lesson-dot"></div>SAF四大技术路线与产能布局<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>国际SAF进出口贸易规则<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>SAF定价体系与Book&Claim<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>CORSIA/ISCC/RSB/ASTM认证<span class="lesson-status">未开始</span></div>
+        <div class="actions">
+          <button class="btn" onclick="showSub(event,'case-m7')">案例研讨</button>
+          <button class="btn" onclick="showSub(event,'quiz-m7')">课后测验</button>
+        </div>
+        <div class="case-box" id="case-m7">
+          <div class="case-title">案例研讨</div>
+          <div class="case-text">
+            <strong>案例A：中石化镇海炼化SAF出口欧洲</strong><br>
+            10万吨/年装置通过ISCC CORSIA和ISCC EU认证，出口阿姆斯特丹，HEFA工艺与报关流程。<br><br>
+            <strong>案例B：国航SAF商业航班运营</strong><br>
+            北京-成都航线SAF飞行，成本为传统航油3.2倍，Book&Claim机制与旅客绿色溢价接受度。
+          </div>
+        </div>
+        <div class="quiz-box" id="quiz-m7">
+          <div class="q-text">1. SAF目前最成熟技术路线是？</div>
+          <div class="q-opt" onclick="ans(this,'m7',1,'A','A')"><div class="q-letter">A</div>HEFA</div>
+          <div class="q-opt" onclick="ans(this,'m7',1,'B','A')"><div class="q-letter">B</div>PtL</div>
+          <div class="q-opt" onclick="ans(this,'m7',1,'C','A')"><div class="q-letter">C</div>AtJ</div>
+          <div class="q-fb" id="fb-m7-1"></div>
+          <div class="q-text" style="margin-top:10px;">2. SAF溢价约为传统航油的？</div>
+          <div class="q-opt" onclick="ans(this,'m7',2,'A','C')"><div class="q-letter">A</div>0.5-1倍</div>
+          <div class="q-opt" onclick="ans(this,'m7',2,'B','C')"><div class="q-letter">B</div>1-2倍</div>
+          <div class="q-opt" onclick="ans(this,'m7',2,'C','C')"><div class="q-letter">C</div>2-5倍</div>
+          <div class="q-fb" id="fb-m7-2"></div>
+          <div class="q-score" id="sc-m7">得分：0/2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-hd">
+        <div class="card-num">08</div>
+        <div class="card-body">
+          <div class="card-title">民航碳市场参与与全国碳市场衔接</div>
+          <div class="card-desc">配额管理、CCER开发、碳交易策略、制度衔接</div>
+          <div class="card-meta">
+            <span>4课时</span><span>高级</span>
+            <span class="tag tag-policy">政策</span><span class="tag tag-core">核心</span>
+          </div>
+        </div>
+        <div class="card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="card-expand">
+        <div class="lesson"><div class="lesson-dot"></div>碳配额账户开设与履约管理<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>CCER项目开发与收益测算<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>碳交易策略与风险管理<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>民航与全国碳市场衔接设计<span class="lesson-status">未开始</span></div>
+        <div class="actions">
+          <button class="btn" onclick="showSub(event,'case-m8')">案例研讨</button>
+          <button class="btn" onclick="showSub(event,'quiz-m8')">课后测验</button>
+        </div>
+        <div class="case-box" id="case-m8">
+          <div class="case-title">案例研讨</div>
+          <div class="case-text">
+            <strong>案例A：南航碳配额盈余管理与碳资产运营</strong><br>
+            机队更新实现配额盈余，2023年出售获利约2800万元，碳资产会计处理与CCER替代策略。<br><br>
+            <strong>案例B：浦东机场光伏CCER项目开发</strong><br>
+            15MW光伏项目，CM-001-V02方法学，年减排约1.2万吨CO₂收益测算。
+          </div>
+        </div>
+        <div class="quiz-box" id="quiz-m8">
+          <div class="q-text">1. CCER抵消比例上限通常为？</div>
+          <div class="q-opt" onclick="ans(this,'m8',1,'A','B')"><div class="q-letter">A</div>3%</div>
+          <div class="q-opt" onclick="ans(this,'m8',1,'B','B')"><div class="q-letter">B</div>5%</div>
+          <div class="q-opt" onclick="ans(this,'m8',1,'C','B')"><div class="q-letter">C</div>10%</div>
+          <div class="q-fb" id="fb-m8-1"></div>
+          <div class="q-text" style="margin-top:10px;">2. 民航纳入全国碳市场的主要技术障碍？</div>
+          <div class="q-opt" onclick="ans(this,'m8',2,'A','A')"><div class="q-letter">A</div>排放数据监测难度大</div>
+          <div class="q-opt" onclick="ans(this,'m8',2,'B','A')"><div class="q-letter">B</div>企业意愿不足</div>
+          <div class="q-opt" onclick="ans(this,'m8',2,'C','A')"><div class="q-letter">C</div>碳价过低</div>
+          <div class="q-fb" id="fb-m8-2"></div>
+          <div class="q-score" id="sc-m8">得分：0/2</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" onclick="toggleCard(this)">
+      <div class="card-hd">
+        <div class="card-num">09</div>
+        <div class="card-body">
+          <div class="card-title">企业ESG体系与双控考核评价</div>
+          <div class="card-desc">ESG框架、双控指标、信息披露、绿色金融</div>
+          <div class="card-meta">
+            <span>4课时</span><span>高级</span>
+            <span class="tag tag-practice">实操</span><span class="tag tag-core">核心</span>
+          </div>
+        </div>
+        <div class="card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div>
+      </div>
+      <div class="card-expand">
+        <div class="lesson"><div class="lesson-dot"></div>GRI/SASB/TCFD/ISSB框架适用<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>双控考核指标体系构建<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>ESG报告编制与评级提升<span class="lesson-status">未开始</span></div>
+        <div class="lesson"><div class="lesson-dot"></div>绿色金融工具对接<span class="lesson-status">未开始</span></div>
+        <div class="actions">
+          <button class="btn" onclick="showSub(event,'case-m9')">案例研讨</button>
+          <button class="btn" onclick="showSub(event,'quiz-m9')">课后测验</button>
+        </div>
+        <div class="case-box" id="case-m9">
+          <div class="case-title">案例研讨</div>
+          <div class="case-text">
+            <strong>案例A：国航ESG报告编制与MSCI评级提升</strong><br>
+            首次参照ISSB准则编制报告，评级从BBB提升至A，董事会气候治理与供应链碳管理改进。<br><br>
+            <strong>案例B：东航可持续发展挂钩贷款（SLL）</strong><br>
+            10亿元SLL，利率与吨公里碳排放强度挂钩，达标降10bp/未达标升15bp，第三方验证要求。
+          </div>
+        </div>
+        <div class="quiz-box" id="quiz-m9">
+          <div class="q-text">1. 专门针对气候信息披露的框架是？</div>
+          <div class="q-opt" onclick="ans(this,'m9',1,'A','C')"><div class="q-letter">A</div>GRI</div>
+          <div class="q-opt" onclick="ans(this,'m9',1,'B','C')"><div class="q-letter">B</div>SASB</div>
+          <div class="q-opt" onclick="ans(this,'m9',1,'C','C')"><div class="q-letter">C</div>TCFD</div>
+          <div class="q-fb" id="fb-m9-1"></div>
+          <div class="q-text" style="margin-top:10px;">2. SLL利率与什么挂钩？</div>
+          <div class="q-opt" onclick="ans(this,'m9',2,'A','B')"><div class="q-letter">A</div>企业营收</div>
+          <div class="q-opt" onclick="ans(this,'m9',2,'B','B')"><div class="q-letter">B</div>可持续发展KPI</div>
+          <div class="q-opt" onclick="ans(this,'m9',2,'C','B')"><div class="q-letter">C</div>央行基准利率</div>
+          <div class="q-fb" id="fb-m9-2"></div>
+          <div class="q-score" id="sc-m9">得分：0/2</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-case" class="hidden">
+    <div class="section-title">案例库 · 18个航司真实案例</div>
+    <div class="case-grid">
+      <div class="case-card"><div class="case-card-title">南航"双碳"战略路径规划</div><div class="case-card-text">机队优化、航路PBN、地面APU替代三维度减排路径</div><span class="case-card-tag">M1 · 南航</span></div>
+      <div class="case-card"><div class="case-card-title">东航碳市场模拟演练</div><div class="case-card-text">MRV体系建设、排放数据报送、配额试算操作流程</div><span class="case-card-tag">M1 · 东航</span></div>
+      <div class="case-card"><div class="case-card-title">国航应对EU ETS碳成本</div><div class="case-card-text">从抵制到合规，碳成本对票价、航线网络的传导效应</div><span class="case-card-tag">M2 · 国航</span></div>
+      <div class="case-card"><div class="case-card-title">深圳机场台风后韧性改造</div><div class="case-card-text">排水升级、抗风设计、应急电源冗余投资评估</div><span class="case-card-tag">M2 · 深圳机场</span></div>
+      <div class="case-card"><div class="case-card-title">海航机队年轻化</div><div class="case-card-text">6年机龄降至5.6年，吨公里油耗从0.285降至0.241kg</div><span class="case-card-tag">M3 · 海航</span></div>
+      <div class="case-card"><div class="case-card-title">首都机场APU替代全覆盖</div><div class="case-card-text">单台设备年节约120万元，投资回报与流程改造</div><span class="case-card-tag">M3 · 首都机场</span></div>
+      <div class="case-card"><div class="case-card-title">国泰航空CORSIA合规</div><div class="case-card-text">CDM/VCS碳信用采购，双重合规管理协同</div><span class="case-card-tag">M4 · 国泰</span></div>
+      <div class="case-card"><div class="case-card-title">电力行业对民航的启示</div><div class="case-card-text">华能集团MRV、配额管理、CCER使用经验推演</div><span class="case-card-tag">M4 · 华能</span></div>
+      <div class="case-card"><div class="case-card-title">春秋航空低成本绿色合规</div><div class="case-card-text">单一机型战略，免费配额覆盖，绿色金融贷款</div><span class="case-card-tag">M5 · 春秋</span></div>
+      <div class="case-card"><div class="case-card-title">三大航双控指标分解</div><div class="case-card-text">吨公里油耗、APU替代率指标分解与考核迎检</div><span class="case-card-tag">M5 · 三大航</span></div>
+      <div class="case-card"><div class="case-card-title">东航碳排放管理平台</div><div class="case-card-text">数据中台+核算引擎+可视化大屏，FOC系统对接</div><span class="case-card-tag">M6 · 东航</span></div>
+      <div class="case-card"><div class="case-card-title">厦门航空SBTi审验</div><div class="case-card-text">中国首家通过SBTi审验，2030年减排42%目标分解</div><span class="case-card-tag">M6 · 厦航</span></div>
+      <div class="case-card"><div class="case-card-title">镇海炼化SAF出口欧洲</div><div class="case-card-text">ISCC认证，出口阿姆斯特丹，HEFA工艺与报关</div><span class="case-card-tag">M7 · 中石化</span></div>
+      <div class="case-card"><div class="case-card-title">国航SAF商业航班</div><div class="case-card-text">北京-成都SAF飞行，Book&Claim机制与旅客接受度</div><span class="case-card-tag">M7 · 国航</span></div>
+      <div class="case-card"><div class="case-card-title">南航碳配额盈余管理</div><div class="case-card-text">出售配额获利2800万元，碳资产会计处理</div><span class="case-card-tag">M8 · 南航</span></div>
+      <div class="case-card"><div class="case-card-title">浦东机场光伏CCER</div><div class="case-card-text">15MW光伏，CM-001-V02方法学，年减排1.2万吨</div><span class="case-card-tag">M8 · 浦东机场</span></div>
+      <div class="case-card"><div class="case-card-title">国航ESG与MSCI评级</div><div class="case-card-text">ISSB准则编制，评级从BBB提升至A</div><span class="case-card-tag">M9 · 国航</span></div>
+      <div class="case-card"><div class="case-card-title">东航可持续发展挂钩贷款</div><div class="case-card-text">10亿元SLL，利率与碳排放强度挂钩</div><span class="case-card-tag">M9 · 东航</span></div>
+    </div>
+  </div>
+
+  <div id="page-quiz" class="hidden">
+    <div class="section-title">在线测验 · 9套试卷 · 18道题目</div>
+    <div class="quiz-card">
+      <div class="quiz-card-info">
+        <div class="quiz-card-title">M1 气候变化与全球碳治理格局</div>
+        <div class="quiz-card-meta">2道单选题 · 已答 0/2 · 得分 0/2</div>
+      </div>
+      <button class="quiz-card-btn" onclick="goQuiz('m1')">进入测验</button>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-card-info">
+        <div class="quiz-card-title">M2 气候变化对民航业的影响</div>
+        <div class="quiz-card-meta">2道单选题 · 已答 0/2 · 得分 0/2</div>
+      </div>
+      <button class="quiz-card-btn" onclick="goQuiz('m2')">进入测验</button>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-card-info">
+        <div class="quiz-card-title">M3 民航减排措施与技术路径</div>
+        <div class="quiz-card-meta">2道单选题 · 已答 0/2 · 得分 0/2</div>
+      </div>
+      <button class="quiz-card-btn" onclick="goQuiz('m3')">进入测验</button>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-card-info">
+        <div class="quiz-card-title">M4 民航碳市场与碳交易机制</div>
+        <div class="quiz-card-meta">2道单选题 · 已答 0/2 · 得分 0/2</div>
+      </div>
+      <button class="quiz-card-btn" onclick="goQuiz('m4')">进入测验</button>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-card-info">
+        <div class="quiz-card-title">M5 政策法规体系解读</div>
+        <div class="quiz-card-meta">2道单选题 · 已答 0/2 · 得分 0/2</div>
+      </div>
+      <button class="quiz-card-btn" onclick="goQuiz('m5')">进入测验</button>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-card-info">
+        <div class="quiz-card-title">M6 企业绿色减排平台搭建</div>
+        <div class="quiz-card-meta">2道单选题 · 已答 0/2 · 得分 0/2</div>
+      </div>
+      <button class="quiz-card-btn" onclick="goQuiz('m6')">进入测验</button>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-card-info">
+        <div class="quiz-card-title">M7 SAF全链条运用</div>
+        <div class="quiz-card-meta">2道单选题 · 已答 0/2 · 得分 0/2</div>
+      </div>
+      <button class="quiz-card-btn" onclick="goQuiz('m7')">进入测验</button>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-card-info">
+        <div class="quiz-card-title">M8 民航碳市场参与与衔接</div>
+        <div class="quiz-card-meta">2道单选题 · 已答 0/2 · 得分 0/2</div>
+      </div>
+      <button class="quiz-card-btn" onclick="goQuiz('m8')">进入测验</button>
+    </div>
+    <div class="quiz-card">
+      <div class="quiz-card-info">
+        <div class="quiz-card-title">M9 ESG体系与双控考核</div>
+        <div class="quiz-card-meta">2道单选题 · 已答 0/2 · 得分 0/2</div>
+      </div>
+      <button class="quiz-card-btn" onclick="goQuiz('m9')">进入测验</button>
+    </div>
+  </div>
+
+  <div id="page-resource" class="hidden">
+    <div class="section-title">政策法规与标准资源中心 · 20份文件</div>
+    <div class="res-panel">
+      <div class="res-hd" onclick="toggleRes()">
+        <div class="res-hd-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          文件列表
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="res-count">20份</span>
+          <svg id="res-arr" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="res-body" id="res-body">
+        <div class="res-cat">国际政策与标准（8份）</div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">IPCC第六次评估报告（AR6）综合报告</div><span class="res-type">PDF</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">ICAO CORSIA实施手册（2024版）</div><span class="res-type">PDF</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">EU ETS航空业指令 (EU) 2018/959</div><span class="res-type">PDF</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">ReFuelEU Aviation法规 (EU) 2023/2405</div><span class="res-type">PDF</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">ASTM D7566航空燃料含合成烃组分标准</div><span class="res-type">标准</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">ISCC CORSIA/ISCC EU认证体系文件</div><span class="res-type">标准</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">RSB可持续生物材料认证标准</div><span class="res-type">标准</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">巴黎协定（2015）及后续CMA决议</div><span class="res-type">PDF</span></div>
+
+        <div class="res-cat">国内政策与标准（12份）</div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">国务院《2030年前碳达峰行动方案》</div><span class="res-type">PDF</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">民航局《关于加快民航业绿色发展的实施意见》</div><span class="res-type">PDF</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">生态环境部《碳排放权交易管理办法（试行）》</div><span class="res-type">PDF</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">《温室气体自愿减排交易管理办法》</div><span class="res-type">PDF</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">民航局《民航碳排放监测、报告和核查指南》</div><span class="res-type">标准</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">国家发改委《完善能源消费强度和总量双控制度方案》</div><span class="res-type">PDF</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">GRI 305：排放2021标准</div><span class="res-type">标准</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">TCFD气候相关财务信息披露建议</div><span class="res-type">标准</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">SASB航空业可持续会计准则</div><span class="res-type">标准</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">SBTi航空业目标设定指导文件</div><span class="res-type">标准</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">《企业温室气体排放核算与报告指南》</div><span class="res-type">标准</span></div>
+        <div class="res-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><div class="res-name">民航局《民航行业"十四五"绿色发展专项规划》</div><span class="res-type">PDF</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const scores = {};
+  for (let i = 1; i <= 9; i++) scores['m' + i] = 0;
+
+  function showPage(page) {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+    document.getElementById('page-' + page).classList.remove('hidden');
+  }
+
+  function toggleCard(card) {
+    const was = card.classList.contains('expanded');
+    document.querySelectorAll('.card').forEach(c => c.classList.remove('expanded'));
+    document.querySelectorAll('.case-box').forEach(c => c.classList.remove('show'));
+    document.querySelectorAll('.quiz-box').forEach(c => c.classList.remove('show'));
+    document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+    if (!was) card.classList.add('expanded');
+  }
+
+  function showSub(e, id) {
+    e.stopPropagation();
+    const box = document.getElementById(id);
+    const isCase = id.startsWith('case');
+    const prefix = isCase ? 'case-' : 'quiz-';
+    const mid = id.replace(prefix, '');
+    document.querySelectorAll('[id^="' + prefix + '"]').forEach(c => {
+      if (c.id !== id) c.classList.remove('show');
+    });
+    box.classList.toggle('show');
+    e.target.classList.toggle('active');
+  }
+
+  function ans(el, m, q, sel, correct) {
+    const parent = el.parentElement;
+    const opts = parent.querySelectorAll('.q-opt');
+    opts.forEach(o => { o.style.pointerEvents = 'none'; });
+
+    if (sel === correct) {
+      el.classList.add('correct');
+      document.getElementById('fb-' + m + '-' + q).textContent = '回答正确！';
+      document.getElementById('fb-' + m + '-' + q).className = 'q-fb show ok';
+      scores[m]++;
+    } else {
+      el.classList.add('wrong');
+      opts.forEach(o => {
+        if (o.getAttribute('onclick').includes("'" + correct + "'") && o.getAttribute('onclick').includes("'" + correct + "'")) {
+          o.classList.add('correct');
+        }
+      });
+      document.getElementById('fb-' + m + '-' + q).textContent = '回答错误，正确答案是：' + correct;
+      document.getElementById('fb-' + m + '-' + q).className = 'q-fb show ng';
+    }
+    document.getElementById('sc-' + m).textContent = '得分：' + scores[m] + '/2';
+  }
+
+  function goQuiz(m) {
+    showPage('course');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.nav-btn')[1].classList.add('active');
+    setTimeout(() => {
+      const cards = document.querySelectorAll('.card');
+      cards.forEach(c => c.classList.remove('expanded'));
+      const target = document.querySelector('[onclick*="quiz-' + m + '"]').closest('.card');
+      target.classList.add('expanded');
+      document.querySelectorAll('.case-box').forEach(c => c.classList.remove('show'));
+      document.querySelectorAll('.quiz-box').forEach(c => c.classList.remove('show'));
+      document.getElementById('quiz-' + m).classList.add('show');
+    }, 50);
+  }
+
+  function toggleRes() {
+    document.getElementById('res-body').classList.toggle('on');
+    const arr = document.getElementById('res-arr');
+    arr.style.transform = document.getElementById('res-body').classList.contains('on') ? 'rotate(180deg)' : '';
+  }
+</script>
+</body>
+</html>
